@@ -67,7 +67,16 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
   Product.findAll()
     .then((data) => {
-      res.send(data);
+      const response = [];
+      data.forEach((product) => {
+        const output = product;
+        const stringIntervalArray = JSON.parse(product.availability);
+        if (stringIntervalArray.length > 0) {
+          output.availability = stringIntervalArrayToJsonIntervalArray(stringIntervalArray);
+        }
+        response.push(output);
+      });
+      res.send(response);
     })
     .catch((e) => {
       res.status(500).send({
@@ -151,6 +160,65 @@ exports.deleteById = (req, res) => {
     .catch((e) => {
       res.status(500).send({
         message: e.message || 'Delete failed.',
+      });
+    });
+};
+
+exports.checkAvailability = (req, res) => {
+  if (!req.params.pid) {
+    res.status(400).send({
+      message: 'Id was not specified.',
+    });
+    return;
+  }
+  const { pid } = req.params;
+  Product.findByPk(pid)
+    .then((data) => {
+      const stringIntervalArray = JSON.parse(data.availability);
+      if (stringIntervalArray.length > 0) {
+        res.send(stringIntervalArrayToJsonIntervalArray(stringIntervalArray));
+      } else {
+        res.send('[]');
+      }
+    })
+    .catch((e) => {
+      res.status(500).send({
+        message: e.message || 'Check availability failed.',
+      });
+    });
+};
+
+exports.setAvailability = (req, res) => {
+  if (!req.params.pid || !req.body.startDatetime || !req.body.endDatetime) {
+    res.status(400).send({
+      message: 'Id, start Datetime or end Datetime was not specified.',
+    });
+    return;
+  }
+  const { pid } = req.params;
+  const { startDatetime, endDatetime } = req.body;
+  const start = DateTime.fromMillis(parseInt(startDatetime, 10)); // from Date.getTime() format.
+  const end = DateTime.fromMillis(parseInt(endDatetime, 10));
+  const newAvailabilityInterval = Interval.fromDateTimes(start, end);
+
+  let stringIntervalArray;
+  let jsonIntervalArray;
+
+  Product.findByPk(pid)
+    .then((data) => {
+      stringIntervalArray = JSON.parse(data.availability);
+
+      stringIntervalArray.push(newAvailabilityInterval.toISO());
+      jsonIntervalArray = stringIntervalArrayToJsonIntervalArray(stringIntervalArray);
+
+      Product.update({ availability: JSON.stringify(stringIntervalArray) }, {
+        where: { id: pid },
+      });
+      res.send(jsonIntervalArray);
+    })
+    .catch((e) => {
+      res.status(500).send({
+        message: e.message || 'Check availability failed.',
       });
     });
 };

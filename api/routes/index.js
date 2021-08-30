@@ -9,6 +9,10 @@ function apiRoute(app) {
     .get(product.findById)
     .put(product.updateById)
     .delete(product.deleteById);
+
+  app.route('/api/availability/:pid')
+    .get(product.checkAvailability)
+    .put(product.setAvailability);
 }
 
 module.exports = apiRoute;
