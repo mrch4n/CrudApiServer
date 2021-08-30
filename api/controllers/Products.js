@@ -1,17 +1,48 @@
+const { Interval, DateTime } = require('luxon');
 const db = require('../models');
 
 const Product = db.products;
+
+const stringIntervalArrayToJsonIntervalArray = (stringIntervalArray) => {
+  if (stringIntervalArray.length > 0) {
+    const jsonIntervalArray = [];
+    stringIntervalArray.forEach((stringInterval) => {
+      const i = Interval.fromISO(stringInterval);
+      jsonIntervalArray.push({
+        string: i.toISO(),
+        start: i.s.ts,
+        end: i.e.ts,
+      });
+    });
+    return jsonIntervalArray;
+  }
+  return [];
+};
 
 exports.create = (req, res) => {
   if (!req.body.name
     || !req.body.brand
     || !req.body.size
-    || !req.body.color
-    || !req.body.availability) {
+    || !req.body.color) {
     res.status(400).send({
       message: 'name/brand/size/color/avilibility cannot be empty.',
     });
     return;
+  }
+
+  let availabilityString = null;
+
+  try {
+    const { startDatetime, endDatetime } = req.body;
+    if (startDatetime && endDatetime) {
+      const startDatetimeStamp = new Date(parseInt(startDatetime, 10)).toISOString();
+      const endDatetimeStamp = new Date(parseInt(endDatetime, 10)).toISOString();
+      availabilityString = `["${startDatetimeStamp}/${endDatetimeStamp}"]`;
+    }
+  } catch (e) {
+    res.status(500).send({
+      message: e.message || 'Product creation failed: start/end time incorrect.',
+    });
   }
 
   const product = {
@@ -19,7 +50,7 @@ exports.create = (req, res) => {
     brand: req.body.brand,
     size: req.body.size,
     color: req.body.color,
-    availability: req.body.availability,
+    availability: availabilityString || '[]',
   };
 
   Product.create(product)
