@@ -14,6 +14,7 @@ const Products = (sequelize, Sequelize) => {
     },
     availability: {
       type: Sequelize.STRING,
+      default: '[]',
     },
   });
   return Product;
