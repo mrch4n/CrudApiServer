@@ -79,9 +79,7 @@ const bodyChecking = (req, res) => {
   if (verifyBrand && verifySize && verifyColor) {
     return true;
   }
-  res.status(400).send({
-    message: `${(verifyBrand ? '' : 'brand ')}${(verifySize ? '' : 'size ')}${(verifyColor ? '' : 'color ')}incorrect.`,
-  });
+  returnErrorStatus(res, 400, `${(verifyBrand ? '' : 'brand ')}${(verifySize ? '' : 'size ')}${(verifyColor ? '' : 'color ')}incorrect.`);
   return false;
 };
 
@@ -221,9 +219,7 @@ exports.updateById = (req, res) => {
                 message: 'Product was updated successfully.',
               });
             } else {
-              res.status(400).send({
-                message: `Product update failed. Id = ${id} not found or body is empty.`,
-              });
+              returnErrorStatus(res, 400, `Product update failed. Id = ${id} not found or body is empty.`);
             }
           });
       } else {
@@ -248,13 +244,11 @@ exports.deleteById = (req, res) => {
           message: 'Product was deleted successfully.',
         });
       } else {
-        res.status(400).send({
-          message: `Production delete failed. Id = ${id} not found.`,
-        });
+        returnErrorStatus(res, 400, `Product delete failed. Id = ${id} not found.`);
       }
     })
     .catch((e) => {
-      returnErrorStatus(res, 500, `Delete failed. ${e.message}`);
+      returnErrorStatus(res, 500, `Product delete failed. ${e.message}`);
     });
 };
 
