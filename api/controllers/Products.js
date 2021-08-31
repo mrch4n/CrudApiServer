@@ -19,14 +19,34 @@ const stringIntervalArrayToJsonIntervalArray = (stringIntervalArray) => {
   return [];
 };
 
+const stringIntervalArrayToIntervalArray = (stringIntervalArray) => {
+  const intervalArray = [];
+  stringIntervalArray.forEach((stringInterval) => {
+    intervalArray.push(Interval.fromISO(stringInterval));
+  });
+  return intervalArray;
+};
+
+const checkAvailabilityFromIntervalArray = (intervalArray, time) => {
+  let available = false;
+  intervalArray.forEach((interval) => {
+    if (interval.contains(time)) available = true;
+  });
+  return available;
+};
+
+const returnErrorStatus = (res, errorStatus, errorMessage) => {
+  res.status(errorStatus).send({
+    message: errorMessage,
+  });
+};
+
 exports.create = (req, res) => {
   if (!req.body.name
     || !req.body.brand
     || !req.body.size
     || !req.body.color) {
-    res.status(400).send({
-      message: 'name/brand/size/color/avilibility cannot be empty.',
-    });
+    returnErrorStatus(res, 400, 'name/brand/size/color cannot be empty.');
     return;
   }
 
