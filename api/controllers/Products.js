@@ -241,8 +241,36 @@ exports.setAvailability = (req, res) => {
       res.send(jsonIntervalArray);
     })
     .catch((e) => {
-      res.status(500).send({
-        message: `Check availability failed. ${e.message}`,
+      returnErrorStatus(res, 500, `Check availability failed. ${e.message}`);
+    });
+};
+
+exports.checkAvailability = (req, res) => {
+  const { pid } = req.params;
+  let available = false;
+  if (!pid) {
+    returnErrorStatus(res, 400, 'ID was not specified.');
+    return;
+  }
+
+  Product.findByPk(pid)
+    .then((product) => {
+      if (product) {
+        const stringIntervalArray = JSON.parse(product.availability);
+
+        if (stringIntervalArray.length > 0) {
+          const intervalArray = stringIntervalArrayToIntervalArray(stringIntervalArray);
+          if (checkAvailabilityFromIntervalArray(intervalArray, DateTime.now())) available = true;
+        }
+
+        res.status(200).send({
+          available,
       });
+      } else {
+        returnErrorStatus(res, 404, `ID = ${pid} not found.`);
+      }
+    })
+    .catch((e) => {
+      returnErrorStatus(res, 500, `Check availability failed. ${e.message}`);
     });
 };

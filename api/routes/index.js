@@ -13,6 +13,9 @@ function apiRoute(app) {
   app.route('/api/availability/:pid')
     .get(product.checkAvailability)
     .put(product.setAvailability);
+  app.route('/api/available/:pid?')
+    .get(product.checkAvailability);
+
 }
 
 module.exports = apiRoute;
