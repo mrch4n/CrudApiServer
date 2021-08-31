@@ -201,11 +201,15 @@ exports.getAvailabilities = (req, res) => {
   const { pid } = req.params;
   Product.findByPk(pid)
     .then((data) => {
-      const stringIntervalArray = JSON.parse(data.availability);
-      if (stringIntervalArray.length > 0) {
-        res.send(stringIntervalArrayToJsonIntervalArray(stringIntervalArray));
+      if (data) {
+        const stringIntervalArray = JSON.parse(data.availability);
+        if (stringIntervalArray.length > 0) {
+          res.send(stringIntervalArrayToJsonIntervalArray(stringIntervalArray));
+        } else {
+          res.send('[]');
+        }
       } else {
-        res.send('[]');
+        returnErrorStatus(res, 404, `ID = ${pid} not found.`);
       }
     })
     .catch((e) => {
