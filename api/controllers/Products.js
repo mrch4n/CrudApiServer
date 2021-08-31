@@ -3,6 +3,11 @@ const db = require('../models');
 
 const Product = db.products;
 
+/**
+ * A function to convert array of stringInterval to array of jsonInterval
+ * @param {Array} stringIntervalArray An array of stringInterval
+ * @returns {Array} An array of jsonInterval
+ */
 const stringIntervalArrayToJsonIntervalArray = (stringIntervalArray) => {
   if (stringIntervalArray.length > 0) {
     const jsonIntervalArray = [];
@@ -19,6 +24,11 @@ const stringIntervalArrayToJsonIntervalArray = (stringIntervalArray) => {
   return [];
 };
 
+/**
+ * A function to convert array of StringInterval to array of Interval
+ * @param {Array} stringIntervalArray An array of stringInterval
+ * @returns {Array} An array of Interval
+ */
 const stringIntervalArrayToIntervalArray = (stringIntervalArray) => {
   const intervalArray = [];
   stringIntervalArray.forEach((stringInterval) => {
@@ -27,6 +37,12 @@ const stringIntervalArrayToIntervalArray = (stringIntervalArray) => {
   return intervalArray;
 };
 
+/**
+ * This function check if a particular time contains in an array of Interval
+ * @param {Array} intervalArray Array of Interal
+ * @param {DateTime} time A time to check with
+ * @returns {Boolean}
+ */
 const checkAvailabilityFromIntervalArray = (intervalArray, time) => {
   let available = false;
   intervalArray.forEach((interval) => {
@@ -35,12 +51,25 @@ const checkAvailabilityFromIntervalArray = (intervalArray, time) => {
   return available;
 };
 
+/**
+ * This function send error response to user.
+ * @param {Object} res Express.js Response Object
+ * @param {Int} errorStatus HTTP Error Code
+ * @param {String} errorMessage Error message
+ */
 const returnErrorStatus = (res, errorStatus, errorMessage) => {
+  // TODO: implement logging.
   res.status(errorStatus).send({
     message: errorMessage,
   });
 };
 
+/**
+ * This function check body.brand, body.size and body.color contain pre-definded string.
+ * @param {Object} req Express.js Request Object
+ * @param {Object} res Express.js Response Object
+ * @returns {Boolean}
+ */
 const bodyChecking = (req, res) => {
   const { brand, size, color } = req.body;
   const verifyBrand = Product.PRODUCT_BRAND.includes(brand);
@@ -56,6 +85,12 @@ const bodyChecking = (req, res) => {
   return false;
 };
 
+/**
+ * This function check if any value of the object is null.
+ * @param {Object} valueObject A Object contains the value to check with.
+ * @param {Object} res Express.js Response Object.
+ * @returns {Boolean}
+ */
 const emptyCheck = (valueObject, res) => {
   let strBuilder = '';
 
