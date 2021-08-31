@@ -147,18 +147,18 @@ exports.updateById = (req, res) => {
       }
       updatedProduct.availability = JSON.stringify(stringIntervalArray);
       Product.update(updatedProduct, {
-    where: { id },
-  })
-    .then((num) => {
-      if (num[0] === 1) {
-        res.send({
-          message: 'Product was updated successfully.',
-        });
-      } else {
-        res.status(400).send({
-          message: `Product update failed. Id = ${id} not found or body is empty.`,
-        });
-      }
+        where: { id },
+      })
+        .then((num) => {
+          if (num[0] === 1) {
+            res.send({
+              message: 'Product was updated successfully.',
+            });
+          } else {
+            res.status(400).send({
+              message: `Product update failed. Id = ${id} not found or body is empty.`,
+            });
+          }
         });
     })
     .catch((e) => {
@@ -232,7 +232,7 @@ exports.setAvailability = (req, res) => {
     .then((data) => {
       stringIntervalArray = JSON.parse(data.availability);
 
-      stringIntervalArray.push(newAvailabilityInterval.toISO());
+      stringIntervalArray.push(newAvailabilityInterval.toISO()); // convert Interval to string (https://en.wikipedia.org/wiki/ISO_8601#Time_intervals)
       jsonIntervalArray = stringIntervalArrayToJsonIntervalArray(stringIntervalArray);
 
       Product.update({ availability: JSON.stringify(stringIntervalArray) }, {
@@ -265,7 +265,7 @@ exports.checkAvailability = (req, res) => {
 
         res.status(200).send({
           available,
-      });
+        });
       } else {
         returnErrorStatus(res, 404, `ID = ${pid} not found.`);
       }
