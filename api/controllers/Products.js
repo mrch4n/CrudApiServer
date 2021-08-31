@@ -60,9 +60,7 @@ exports.create = (req, res) => {
       availabilityString = `["${startDatetimeStamp}/${endDatetimeStamp}"]`;
     }
   } catch (e) {
-    res.status(500).send({
-      message: `Product creation failed: start/end time incorrect. ${e.message}`,
-    });
+    returnErrorStatus(res, 500, `Product creation failed: start/end time incorrect. ${e.message}`);
   }
 
   const product = {
@@ -78,9 +76,7 @@ exports.create = (req, res) => {
       res.send(data);
     })
     .catch((e) => {
-      res.status(500).send({
-        message: `Production creation failed. ${e.message}`,
-      });
+      returnErrorStatus(res, 500, `Production creation failed. ${e.message}`);
     });
 };
 
@@ -99,24 +95,24 @@ exports.findAll = (req, res) => {
       res.send(response);
     })
     .catch((e) => {
-      res.status(500).send({
-        message: `Find all products failed. ${e.message}`,
-      });
+      returnErrorStatus(res, 500, `Find all products failed. ${e.message}`);
     });
 };
 
 exports.findById = (req, res) => {
   if (!req.params.id) {
-    res.status(400).send({
-      message: 'Id cannot be empty.',
-    });
+    returnErrorStatus(res, 400, 'ID cannot be empty.');
     return;
   }
   const { id } = req.params;
 
   Product.findByPk(id)
     .then((data) => {
-      res.send(data);
+      if (data) {
+        res.send(data);
+      } else {
+        returnErrorStatus(res, 404, `ID = ${id} not found.`);
+      }
     })
     .catch((e) => {
       res.status(500).send({
@@ -178,19 +174,16 @@ exports.deleteById = (req, res) => {
       }
     })
     .catch((e) => {
-      res.status(500).send({
-        message: `Delete failed. ${e.message}`,
-      });
+      returnErrorStatus(res, 500, `Delete failed. ${e.message}`);
     });
 };
 
-exports.checkAvailability = (req, res) => {
+exports.getAvailabilities = (req, res) => {
   if (!req.params.pid) {
-    res.status(400).send({
-      message: 'Id was not specified.',
-    });
+    returnErrorStatus(res, 400, 'ID was not specified.');
     return;
   }
+
   const { pid } = req.params;
   Product.findByPk(pid)
     .then((data) => {
@@ -202,19 +195,16 @@ exports.checkAvailability = (req, res) => {
       }
     })
     .catch((e) => {
-      res.status(500).send({
-        message: `Check availability failed. ${e.message}`,
-      });
+      returnErrorStatus(res, 500, `Check availability failed. ${e.message}`);
     });
 };
 
 exports.setAvailability = (req, res) => {
   if (!req.params.pid || !req.body.startDatetime || !req.body.endDatetime) {
-    res.status(400).send({
-      message: 'Id, start Datetime or end Datetime was not specified.',
-    });
+    returnErrorStatus(res, 400, 'ID, startDatetime or endDatetime was not specified.');
     return;
   }
+
   const { pid } = req.params;
   const { startDatetime, endDatetime } = req.body;
   const start = DateTime.fromMillis(parseInt(startDatetime, 10)); // from Date.getTime() format.
