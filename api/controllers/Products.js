@@ -123,9 +123,7 @@ exports.findById = (req, res) => {
 
 exports.updateById = (req, res) => {
   if (!req.params.id) {
-    res.status(400).send({
-      message: 'Id is not specified.',
-    });
+    returnErrorStatus(res, 400, 'ID is not specified.');
     return;
   }
   const { id } = req.params;
@@ -144,17 +142,13 @@ exports.updateById = (req, res) => {
       }
     })
     .catch((e) => {
-      res.status(500).send({
-        message: `Update failed. ${e.message}`,
-      });
+      returnErrorStatus(res, 500, `Update failed. ${e.message}`);
     });
 };
 
 exports.deleteById = (req, res) => {
   if (!req.params.id) {
-    res.status(400).send({
-      message: 'Id is not specified.',
-    });
+    returnErrorStatus(res, 400, 'ID is not specified.');
     return;
   }
   const { id } = req.params;
