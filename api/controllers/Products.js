@@ -234,15 +234,19 @@ exports.setAvailability = (req, res) => {
 
   Product.findByPk(pid)
     .then((data) => {
-      stringIntervalArray = JSON.parse(data.availability);
+      if (data) {
+        stringIntervalArray = JSON.parse(data.availability);
 
-      stringIntervalArray.push(newAvailabilityInterval.toISO()); // convert Interval to string (https://en.wikipedia.org/wiki/ISO_8601#Time_intervals)
-      jsonIntervalArray = stringIntervalArrayToJsonIntervalArray(stringIntervalArray);
+        stringIntervalArray.push(newAvailabilityInterval.toISO()); // convert Interval to string (https://en.wikipedia.org/wiki/ISO_8601#Time_intervals)
+        jsonIntervalArray = stringIntervalArrayToJsonIntervalArray(stringIntervalArray);
 
-      Product.update({ availability: JSON.stringify(stringIntervalArray) }, {
-        where: { id: pid },
-      });
-      res.send(jsonIntervalArray);
+        Product.update({ availability: JSON.stringify(stringIntervalArray) }, {
+          where: { id: pid },
+        });
+        res.send(jsonIntervalArray);
+      } else {
+        returnErrorStatus(res, 404, `ID = ${pid} not found.`);
+      }
     })
     .catch((e) => {
       returnErrorStatus(res, 500, `Check availability failed. ${e.message}`);
