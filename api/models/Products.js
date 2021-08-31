@@ -17,6 +17,11 @@ const Products = (sequelize, Sequelize) => {
       default: '[]',
     },
   });
+
+  Product.PRODUCT_SIZE = ['S', 'M', 'L'];
+  Product.PRODUCT_BRAND = ['Kipsta', 'Quechua', 'Artengo'];
+  Product.PRODUCT_COLOR = ['Blue', 'Green', 'White'];
+
   return Product;
 };
 

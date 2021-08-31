@@ -41,6 +41,21 @@ const returnErrorStatus = (res, errorStatus, errorMessage) => {
   });
 };
 
+const bodyChecking = (req, res) => {
+  const { brand, size, color } = req.body;
+  const verifyBrand = Product.PRODUCT_BRAND.includes(brand);
+  const verifySize = Product.PRODUCT_SIZE.includes(size);
+  const verifyColor = Product.PRODUCT_COLOR.includes(color);
+
+  if (verifyBrand && verifySize && verifyColor) {
+    return true;
+  }
+  res.status(400).send({
+    message: `${(verifyBrand ? '' : 'brand ')}${(verifySize ? '' : 'size ')}${(verifyColor ? '' : 'color ')}incorrect.`,
+  });
+  return false;
+};
+
 exports.create = (req, res) => {
   if (!req.body.name
     || !req.body.brand
@@ -49,6 +64,7 @@ exports.create = (req, res) => {
     returnErrorStatus(res, 400, 'name/brand/size/color cannot be empty.');
     return;
   }
+  if (!bodyChecking(req, res)) return;
 
   let availabilityString = null;
 
@@ -126,6 +142,8 @@ exports.updateById = (req, res) => {
     returnErrorStatus(res, 400, 'ID is not specified.');
     return;
   }
+  if (!bodyChecking(req, res)) return;
+
   const { id } = req.params;
   let newAvailabilityInterval = false;
 
