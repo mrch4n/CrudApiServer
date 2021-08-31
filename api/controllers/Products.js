@@ -41,7 +41,7 @@ exports.create = (req, res) => {
     }
   } catch (e) {
     res.status(500).send({
-      message: e.message || 'Product creation failed: start/end time incorrect.',
+      message: `Product creation failed: start/end time incorrect. ${e.message}`,
     });
   }
 
@@ -59,7 +59,7 @@ exports.create = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Production creation failed.',
+        message: `Production creation failed. ${e.message}`,
       });
     });
 };
@@ -80,7 +80,7 @@ exports.findAll = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Find all products failed.',
+        message: `Find all products failed. ${e.message}`,
       });
     });
 };
@@ -100,7 +100,7 @@ exports.findById = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Find by id failed.',
+        message: `Find by id failed. ${e.message}`,
       });
     });
 };
@@ -129,7 +129,7 @@ exports.updateById = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Update failed.',
+        message: `Update failed. ${e.message}`,
       });
     });
 };
@@ -159,7 +159,7 @@ exports.deleteById = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Delete failed.',
+        message: `Delete failed. ${e.message}`,
       });
     });
 };
@@ -183,7 +183,7 @@ exports.checkAvailability = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Check availability failed.',
+        message: `Check availability failed. ${e.message}`,
       });
     });
 };
@@ -218,7 +218,7 @@ exports.setAvailability = (req, res) => {
     })
     .catch((e) => {
       res.status(500).send({
-        message: e.message || 'Check availability failed.',
+        message: `Check availability failed. ${e.message}`,
       });
     });
 };
