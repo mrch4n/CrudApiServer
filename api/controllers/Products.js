@@ -56,14 +56,31 @@ const bodyChecking = (req, res) => {
   return false;
 };
 
+const emptyCheck = (valueObject, res) => {
+  let strBuilder = '';
+
+  Object.keys(valueObject).forEach((v) => {
+    if (!valueObject[v]) {
+      strBuilder += `${v} `;
+    }
+  });
+  if (strBuilder === '') {
+    return true;
+  }
+  res.status(400).send({
+    message: `${strBuilder}was empty.`,
+  });
+  return false;
+};
+
 exports.create = (req, res) => {
   const {
     name, brand, size, color, startDatetime, endDatetime,
   } = req.body;
-  if (!name || !brand || !size || !color) {
-    returnErrorStatus(res, 400, 'name/brand/size/color cannot be empty.');
-    return;
-  }
+
+  if (!emptyCheck({
+    name, brand, size, color,
+  }, res)) return;
   if (!bodyChecking(req, res)) return;
 
   let availabilityString = null;
@@ -115,11 +132,9 @@ exports.findAll = (req, res) => {
 };
 
 exports.findById = (req, res) => {
-  if (!req.params.id) {
-    returnErrorStatus(res, 400, 'ID cannot be empty.');
-    return;
-  }
   const { id } = req.params;
+
+  if (!emptyCheck({ id }, res)) return;
 
   Product.findByPk(id)
     .then((data) => {
@@ -138,10 +153,8 @@ exports.findById = (req, res) => {
 
 exports.updateById = (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    returnErrorStatus(res, 400, 'ID is not specified.');
-    return;
-  }
+
+  if (!emptyCheck({ id }, res)) return;
   if (!bodyChecking(req, res)) return;
 
   let newAvailabilityInterval = false;
@@ -189,10 +202,7 @@ exports.updateById = (req, res) => {
 
 exports.deleteById = (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    returnErrorStatus(res, 400, 'ID is not specified.');
-    return;
-  }
+  if (!emptyCheck({ id }, res)) return;
 
   Product.destroy({
     where: { id },
@@ -215,10 +225,7 @@ exports.deleteById = (req, res) => {
 
 exports.getAvailabilities = (req, res) => {
   const { pid } = req.params;
-  if (!pid) {
-    returnErrorStatus(res, 400, 'ID was not specified.');
-    return;
-  }
+  if (!emptyCheck({ pid }, res)) return;
 
   Product.findByPk(pid)
     .then((data) => {
@@ -242,10 +249,7 @@ exports.setAvailability = (req, res) => {
   const { pid } = req.params;
   const { startDatetime, endDatetime } = req.body;
 
-  if (!pid || !startDatetime || !endDatetime) {
-    returnErrorStatus(res, 400, 'ID, startDatetime or endDatetime was not specified.');
-    return;
-  }
+  if (!emptyCheck({ pid, startDatetime, endDatetime }, res)) return;
 
   const start = DateTime.fromMillis(parseInt(startDatetime, 10)); // from Date.getTime() format.
   const end = DateTime.fromMillis(parseInt(endDatetime, 10));
@@ -277,10 +281,8 @@ exports.setAvailability = (req, res) => {
 
 exports.checkAvailability = (req, res) => {
   const { pid } = req.params;
-  if (!pid) {
-    returnErrorStatus(res, 400, 'ID was not specified.');
-    return;
-  }
+  if (!emptyCheck({ pid }, res)) return;
+
   let available = false;
 
   Product.findByPk(pid)
