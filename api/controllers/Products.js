@@ -57,10 +57,10 @@ const bodyChecking = (req, res) => {
 };
 
 exports.create = (req, res) => {
-  if (!req.body.name
-    || !req.body.brand
-    || !req.body.size
-    || !req.body.color) {
+  const {
+    name, brand, size, color, startDatetime, endDatetime,
+  } = req.body;
+  if (!name || !brand || !size || !color) {
     returnErrorStatus(res, 400, 'name/brand/size/color cannot be empty.');
     return;
   }
@@ -68,22 +68,21 @@ exports.create = (req, res) => {
 
   let availabilityString = null;
 
-  try {
-    const { startDatetime, endDatetime } = req.body;
-    if (startDatetime && endDatetime) {
+  if (startDatetime && endDatetime) {
+    try {
       const startDatetimeStamp = new Date(parseInt(startDatetime, 10)).toISOString();
       const endDatetimeStamp = new Date(parseInt(endDatetime, 10)).toISOString();
       availabilityString = `["${startDatetimeStamp}/${endDatetimeStamp}"]`;
+    } catch (e) {
+      returnErrorStatus(res, 500, `Product creation failed: start/end time incorrect. ${e.message}`);
     }
-  } catch (e) {
-    returnErrorStatus(res, 500, `Product creation failed: start/end time incorrect. ${e.message}`);
   }
 
   const product = {
-    name: req.body.name,
-    brand: req.body.brand,
-    size: req.body.size,
-    color: req.body.color,
+    name,
+    brand,
+    size,
+    color,
     availability: availabilityString || '[]',
   };
 
@@ -138,13 +137,13 @@ exports.findById = (req, res) => {
 };
 
 exports.updateById = (req, res) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     returnErrorStatus(res, 400, 'ID is not specified.');
     return;
   }
   if (!bodyChecking(req, res)) return;
 
-  const { id } = req.params;
   let newAvailabilityInterval = false;
 
   const { startDatetime, endDatetime } = req.body;
@@ -189,11 +188,11 @@ exports.updateById = (req, res) => {
 };
 
 exports.deleteById = (req, res) => {
-  if (!req.params.id) {
+  const { id } = req.params;
+  if (!id) {
     returnErrorStatus(res, 400, 'ID is not specified.');
     return;
   }
-  const { id } = req.params;
 
   Product.destroy({
     where: { id },
@@ -215,12 +214,12 @@ exports.deleteById = (req, res) => {
 };
 
 exports.getAvailabilities = (req, res) => {
-  if (!req.params.pid) {
+  const { pid } = req.params;
+  if (!pid) {
     returnErrorStatus(res, 400, 'ID was not specified.');
     return;
   }
 
-  const { pid } = req.params;
   Product.findByPk(pid)
     .then((data) => {
       if (data) {
@@ -240,13 +239,14 @@ exports.getAvailabilities = (req, res) => {
 };
 
 exports.setAvailability = (req, res) => {
-  if (!req.params.pid || !req.body.startDatetime || !req.body.endDatetime) {
+  const { pid } = req.params;
+  const { startDatetime, endDatetime } = req.body;
+
+  if (!pid || !startDatetime || !endDatetime) {
     returnErrorStatus(res, 400, 'ID, startDatetime or endDatetime was not specified.');
     return;
   }
 
-  const { pid } = req.params;
-  const { startDatetime, endDatetime } = req.body;
   const start = DateTime.fromMillis(parseInt(startDatetime, 10)); // from Date.getTime() format.
   const end = DateTime.fromMillis(parseInt(endDatetime, 10));
   const newAvailabilityInterval = Interval.fromDateTimes(start, end);
@@ -277,11 +277,11 @@ exports.setAvailability = (req, res) => {
 
 exports.checkAvailability = (req, res) => {
   const { pid } = req.params;
-  let available = false;
   if (!pid) {
     returnErrorStatus(res, 400, 'ID was not specified.');
     return;
   }
+  let available = false;
 
   Product.findByPk(pid)
     .then((product) => {
