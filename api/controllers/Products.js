@@ -127,7 +127,26 @@ exports.updateById = (req, res) => {
     return;
   }
   const { id } = req.params;
-  Product.update(req.body, {
+  let newAvailabilityInterval = false;
+
+  const { startDatetime, endDatetime } = req.body;
+  if (startDatetime && endDatetime) {
+    const start = DateTime.fromMillis(parseInt(startDatetime, 10)); // from Date.getTime() format.
+    const end = DateTime.fromMillis(parseInt(endDatetime, 10));
+    newAvailabilityInterval = Interval.fromDateTimes(start, end);
+  }
+
+  let stringIntervalArray;
+  const updatedProduct = req.body;
+
+  Product.findByPk(id)
+    .then((data) => {
+      stringIntervalArray = JSON.parse(data.availability);
+      if (newAvailabilityInterval) {
+        stringIntervalArray.push(newAvailabilityInterval.toISO());
+      }
+      updatedProduct.availability = JSON.stringify(stringIntervalArray);
+      Product.update(updatedProduct, {
     where: { id },
   })
     .then((num) => {
@@ -140,6 +159,7 @@ exports.updateById = (req, res) => {
           message: `Product update failed. Id = ${id} not found or body is empty.`,
         });
       }
+        });
     })
     .catch((e) => {
       returnErrorStatus(res, 500, `Update failed. ${e.message}`);
