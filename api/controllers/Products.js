@@ -159,25 +159,29 @@ exports.updateById = (req, res) => {
 
   Product.findByPk(id)
     .then((data) => {
-      stringIntervalArray = JSON.parse(data.availability);
-      if (newAvailabilityInterval) {
-        stringIntervalArray.push(newAvailabilityInterval.toISO());
+      if (data) {
+        stringIntervalArray = JSON.parse(data.availability);
+        if (newAvailabilityInterval) {
+          stringIntervalArray.push(newAvailabilityInterval.toISO());
+        }
+        updatedProduct.availability = JSON.stringify(stringIntervalArray);
+        Product.update(updatedProduct, {
+          where: { id },
+        })
+          .then((num) => {
+            if (num[0] === 1) {
+              res.send({
+                message: 'Product was updated successfully.',
+              });
+            } else {
+              res.status(400).send({
+                message: `Product update failed. Id = ${id} not found or body is empty.`,
+              });
+            }
+          });
+      } else {
+        returnErrorStatus(res, 404, `ID = ${id} not found.`);
       }
-      updatedProduct.availability = JSON.stringify(stringIntervalArray);
-      Product.update(updatedProduct, {
-        where: { id },
-      })
-        .then((num) => {
-          if (num[0] === 1) {
-            res.send({
-              message: 'Product was updated successfully.',
-            });
-          } else {
-            res.status(400).send({
-              message: `Product update failed. Id = ${id} not found or body is empty.`,
-            });
-          }
-        });
     })
     .catch((e) => {
       returnErrorStatus(res, 500, `Update failed. ${e.message}`);
