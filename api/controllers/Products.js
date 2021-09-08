@@ -253,10 +253,10 @@ exports.deleteById = (req, res) => {
 };
 
 exports.getAvailabilities = (req, res) => {
-  const { pid } = req.params;
-  if (!emptyCheck({ pid }, res)) return;
+  const { id } = req.params;
+  if (!emptyCheck({ id }, res)) return;
 
-  Product.findByPk(pid)
+  Product.findByPk(id)
     .then((data) => {
       if (data) {
         const stringIntervalArray = JSON.parse(data.availability);
@@ -266,7 +266,7 @@ exports.getAvailabilities = (req, res) => {
           res.send('[]');
         }
       } else {
-        returnErrorStatus(res, 404, `ID = ${pid} not found.`);
+        returnErrorStatus(res, 404, `ID = ${id} not found.`);
       }
     })
     .catch((e) => {
@@ -275,10 +275,10 @@ exports.getAvailabilities = (req, res) => {
 };
 
 exports.setAvailability = (req, res) => {
-  const { pid } = req.params;
+  const { id } = req.params;
   const { startDatetime, endDatetime } = req.body;
 
-  if (!emptyCheck({ pid, startDatetime, endDatetime }, res)) return;
+  if (!emptyCheck({ id, startDatetime, endDatetime }, res)) return;
 
   const start = DateTime.fromMillis(parseInt(startDatetime, 10)); // from Date.getTime() format.
   const end = DateTime.fromMillis(parseInt(endDatetime, 10));
@@ -287,7 +287,7 @@ exports.setAvailability = (req, res) => {
   let stringIntervalArray;
   let jsonIntervalArray;
 
-  Product.findByPk(pid)
+  Product.findByPk(id)
     .then((data) => {
       if (data) {
         stringIntervalArray = JSON.parse(data.availability);
@@ -296,11 +296,11 @@ exports.setAvailability = (req, res) => {
         jsonIntervalArray = stringIntervalArrayToJsonIntervalArray(stringIntervalArray);
 
         Product.update({ availability: JSON.stringify(stringIntervalArray) }, {
-          where: { id: pid },
+          where: { id },
         });
         res.send(jsonIntervalArray);
       } else {
-        returnErrorStatus(res, 404, `ID = ${pid} not found.`);
+        returnErrorStatus(res, 404, `ID = ${id} not found.`);
       }
     })
     .catch((e) => {
@@ -309,12 +309,12 @@ exports.setAvailability = (req, res) => {
 };
 
 exports.checkAvailability = (req, res) => {
-  const { pid } = req.params;
-  if (!emptyCheck({ pid }, res)) return;
+  const { id } = req.params;
+  if (!emptyCheck({ id }, res)) return;
 
   let available = false;
 
-  Product.findByPk(pid)
+  Product.findByPk(id)
     .then((product) => {
       if (product) {
         const stringIntervalArray = JSON.parse(product.availability);
@@ -328,7 +328,7 @@ exports.checkAvailability = (req, res) => {
           available,
         });
       } else {
-        returnErrorStatus(res, 404, `ID = ${pid} not found.`);
+        returnErrorStatus(res, 404, `ID = ${id} not found.`);
       }
     })
     .catch((e) => {

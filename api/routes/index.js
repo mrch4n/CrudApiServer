@@ -10,11 +10,11 @@ function apiRoute(app) {
     .put(product.updateById)
     .delete(product.deleteById);
 
-  app.route('/api/availability/:pid?')
+  app.route('/api/products/:id?/availability')
     .get(product.getAvailabilities)
     .put(product.setAvailability);
 
-  app.route('/api/available/:pid?')
+  app.route('/api/products/:id?/available')
     .get(product.checkAvailability);
 
   app.use((req, res) => {

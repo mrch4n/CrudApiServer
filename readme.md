@@ -99,7 +99,7 @@ Output:
 }
 ```
 
-### GET /api/availability/(id)
+### GET /api/products/(id)/availability
 Get all availabilities of a product by product ID
 Output:
 ```
@@ -112,7 +112,7 @@ Output:
 ]
 ```
 
-### PUT /api/availability/(id)
+### PUT /api/products/(id)/availability
 Add a product availability by product ID
 Input (x-www-form):
 ```
@@ -131,7 +131,7 @@ Output:
 ]
 ```
 
-### GET /api/available/(id)
+### GET /api/products/(id)/available
 Check a product availability by product ID
 ```
 {
